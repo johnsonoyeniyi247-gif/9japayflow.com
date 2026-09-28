@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>9JA Cashflow — Earn & Play</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  :root{
+    --bg:#05100a;--surface:#0e1f14;--surface-2:#12281a;--surface-3:#173122;
+    --border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.15);
+    --text:#eaf5ee;--muted:#7fa38d;--accent:#22c55e;--accent-2:#4ade80;
+    --accent-glow:rgba(34,197,94,.45);--gold:#fbbf24;--gold-2:#f59e0b;
+    --danger:#f87171;--info:#38bdf8;
+  }
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:100vh;position:relative;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(600px 400px at 10% -5%, rgba(34,197,94,.15), transparent 65%),radial-gradient(500px 400px at 95% 5%, rgba(251,191,36,.10), transparent 65%),radial-gradient(700px 500px at 50% 110%, rgba(34,197,94,.08), transparent 70%);}
+  body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.3;background-image:linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%, #000 20%, transparent 75%);}
+  .wrap{max-width:520px;margin:0 auto;padding:0 18px;position:relative;z-index:1}
+
+  #splashScreen{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,#05100a 0%,#0a1f12 50%,#05100a 100%);transition:opacity .5s ease, visibility .5s;padding:24px;}
+  #splashScreen.gone{opacity:0;visibility:hidden;pointer-events:none}
+  .splash-logo{width:96px;height:96px;border-radius:28px;background:linear-gradient(135deg,var(--accent),var(--gold));display:grid;place-items:center;color:#05100a;font-weight:900;font-size:2.6rem;box-shadow:0 0 60px var(--accent-glow);margin-bottom:28px;animation:logoIn .8s cubic-bezier(.16,1,.3,1);}
+  @keyframes logoIn{0%{transform:scale(.5) rotate(-12deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+  .splash-brand{font-size:1.9rem;font-weight:900;letter-spacing:-.03em;background:linear-gradient(120deg,#fff,var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:8px;}
+  .splash-tag{font-size:.9rem;color:var(--muted);margin-bottom:44px;}
+  .splash-progress{width:220px;height:4px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;}
+  .splash-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--gold));border-radius:99px;animation:fillBar 2.4s cubic-bezier(.4,0,.2,1) forwards;}
+  @keyframes fillBar{0%{width:0%}50%{width:65%}100%{width:100%}}
+  .splash-loading{margin-top:16px;font-size:.78rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;}
+
+  #splashOverlay{position:fixed;inset:0;z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(5,16,10,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .3s, visibility .3s;padding:24px;gap:20px;}
+  #splashOverlay.active{opacity:1;visibility:visible;pointer-events:auto}
+  .so-ring{width:56px;height:56px;border-radius:50%;border:3px solid rgba(34,197,94,.18);border-top-color:var(--accent);border-right-color:var(--gold);animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .so-text{font-size:.95rem;font-weight:600;text-align:center}
+  .so-sub{font-size:.78rem;color:var(--muted);margin-top:-14px}
+
+  .layer{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:18px;opacity:0;pointer-events:none;visibility:hidden;transition:opacity .35s, visibility .35s;overflow-y:auto;}
+  .layer.active{opacity:1;pointer-events:auto;visibility:visible}
+  .layer-bg{position:absolute;inset:0;background:rgba(3,10,6,.85);backdrop-filter:blur(14px);}
+  .layer-inner{position:relative;z-index:1;width:100%;max-width:440px;margin:auto;transform:translateY(20px) scale(.97);transition:transform .45s cubic-bezier(.16,1,.3,1);}
+  .layer.active .layer-inner{transform:translateY(0) scale(1)}
+
+  .auth-panel{background:linear-gradient(180deg,var(--surface),rgba(8,20,12,.98));border:1px solid var(--border-strong);border-radius:24px;padding:32px 26px 28px;box-shadow:0 40px 100px -30px rgba(0,0,0,.95);position:relative;}
+  .auth-head{text-align:center;margin-bottom:24px}
+  .auth-head .mark{width:52px;height:52px;border-radius:16px;margin:0 auto 16px;background:linear-gradient(135deg,var(--accent),var(--gold));display:grid;place-items:center;color:#05100a;font-weight:900;font-size:1.4rem;box-shadow:0 0 30px var(--accent-glow);}
+  .auth-head h2{font-size:1.4rem;font-weight:800;letter-spacing:-.03em;margin-bottom:6px}
+  .auth-head p{font-size:.85rem;color:var(--muted)}
+  .auth-form{display:flex;flex-direction:column;gap:14px}
+  .input-group{display:flex;flex-direction:column;gap:6px}
+  .input-group label{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+  .input-group input,.input-group select{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:13px 15px;color:var(--text);font-family:inherit;font-size:.94rem;outline:none;transition:border-color .2s, background .2s, box-shadow .2s;}
+  .input-group input::placeholder{color:rgba(127,163,141,.5)}
+  .input-group input:focus,.input-group select:focus{border-color:rgba(34,197,94,.55);background:rgba(34,197,94,.06);box-shadow:0 0 0 4px rgba(34,197,94,.1);}
+  .input-group input.invalid{border-color:rgba(248,113,113,.6);box-shadow:0 0 0 4px rgba(248,113,113,.1);}
+  .input-hint{font-size:.72rem;color:var(--muted);margin-top:2px}
+  .error-msg{font-size:.74rem;color:var(--danger);display:none;margin-top:2px}
+  .error-msg.show{display:block}
+  .code-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:99px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);color:var(--gold);font-size:.68rem;font-weight:700;letter-spacing:.06em;margin-left:6px;}
+  .auth-submit{width:100%;margin-top:6px;padding:14px;font-size:.95rem;border:none;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#05100a;font-weight:800;cursor:pointer;font-family:inherit;}
+  .auth-switch{text-align:center;font-size:.84rem;color:var(--muted);margin-top:20px;padding-top:18px;border-top:1px solid var(--border);}
+  .auth-switch button{background:none;border:none;color:var(--accent);font-family:inherit;font-size:.84rem;font-weight:700;cursor:pointer;padding:0 4px;}
+  .close-btn{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted);font-size:1rem;display:grid;place-items:center;cursor:pointer;z-index:2;}
+
+  #welcomeLayer{z-index:200}
+  .welcome-card{background:linear-gradient(180deg,var(--surface-2),rgba(8,20,12,.98));border:1px solid rgba(34,197,94,.3);border-radius:26px;padding:32px 24px 26px;text-align:center;box-shadow:0 40px 100px -30px rgba(0,0,0,.95);position:relative;overflow:hidden;}
+  .welcome-emoji{font-size:3rem;margin-bottom:12px;}
+  .welcome-card h2{font-size:1.5rem;font-weight:900;letter-spacing:-.03em;margin-bottom:8px;background:linear-gradient(120deg,#fff,var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .welcome-card .sub{font-size:.88rem;color:var(--muted);margin-bottom:22px}
+  .welcome-balance{background:linear-gradient(135deg,rgba(34,197,94,.14),rgba(251,191,36,.08));border:1px solid rgba(34,197,94,.25);border-radius:18px;padding:20px;margin-bottom:18px;}
+  .wb-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:4px}
+  .wb-amount{font-size:2rem;font-weight:900;letter-spacing:-.04em;color:var(--accent-2);line-height:1.1}
+  .wb-sub{font-size:.74rem;color:var(--muted);margin-top:4px}
+  .referral-box{background:rgba(251,191,36,.08);border:1px dashed rgba(251,191,36,.4);border-radius:14px;padding:14px 16px;margin-bottom:18px;text-align:left;}
+  .ref-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);font-weight:700;margin-bottom:4px}
+  .ref-code{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .ref-code strong{font-size:1.3rem;font-weight:900;letter-spacing:.05em;color:var(--gold);font-family:'Courier New',monospace;}
+  .copy-btn{background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.35);color:var(--gold);border-radius:8px;padding:6px 12px;font-family:inherit;font-size:.72rem;font-weight:700;cursor:pointer;}
+  .ref-note{font-size:.72rem;color:var(--muted);margin-top:6px}
+  .wa-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#25d366,#128c7e);border:none;border-radius:14px;padding:14px;color:#fff;font-family:inherit;font-size:.94rem;font-weight:700;cursor:pointer;margin-bottom:12px;box-shadow:0 8px 25px -8px rgba(37,211,102,.5);}
+  .wa-btn svg{width:20px;height:20px;fill:#fff}
+  .welcome-cta{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,var(--accent),var(--accent-2));border:none;border-radius:14px;padding:14px;color:#05100a;font-family:inherit;font-size:.94rem;font-weight:800;cursor:pointer;box-shadow:0 8px 25px -8px var(--accent-glow);}
+
+  #appScreen{min-height:100vh;padding-bottom:90px;position:relative;z-index:1;opacity:0;transition:opacity .5s;}
+  #appScreen.show{opacity:1}
+  .app-header{position:sticky;top:0;z-index:50;background:rgba(5,16,10,.85);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:12px 0;}
+  .app-header-inner{display:flex;align-items:center;justify-content:space-between;max-width:520px;margin:0 auto;padding:0 18px;gap:8px;}
+  .app-user{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+  .app-avatar{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--gold));display:grid;place-items:center;color:#05100a;font-weight:900;font-size:.9rem;flex-shrink:0;}
+  .app-greet{font-size:.72rem;color:var(--muted);line-height:1.2}
+  .app-name{font-size:.92rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+  .app-code-chip{font-size:.68rem;font-weight:700;padding:5px 10px;border-radius:99px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);color:var(--gold);letter-spacing:.05em;font-family:'Courier New',monospace;flex-shrink:0;}
+  .logout-btn{background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.35);color:var(--danger);border-radius:10px;padding:8px 12px;font-family:inherit;font-size:.72rem;font-weight:700;cursor:pointer;flex-shrink:0;transition:background .2s;}
+  .logout-btn:hover{background:rgba(248,113,113,.25)}
+
+  .balance-hero{background:linear-gradient(135deg,rgba(34,197,94,.18),rgba(251,191,36,.10));border:1px solid rgba(34,197,94,.28);border-radius:22px;padding:24px;margin-top:18px;position:relative;overflow:hidden;}
+  .bh-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.13em;color:var(--muted);margin-bottom:6px}
+  .bh-amount{font-size:2.4rem;font-weight:900;letter-spacing:-.04em;background:linear-gradient(120deg,#fff,var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1.05;margin-bottom:4px;}
+  .bh-sub{font-size:.76rem;color:var(--muted)}
+
+  .verify-banner{margin-top:14px;padding:16px;border-radius:16px;background:linear-gradient(135deg,rgba(251,191,36,.12),rgba(251,191,36,.05));border:1px solid rgba(251,191,36,.35);display:none;}
+  .verify-banner.show{display:block;animation:popIn .4s}
+  .verify-banner.ready{background:linear-gradient(135deg,rgba(34,197,94,.15),rgba(34,197,94,.05));border-color:rgba(34,197,94,.5);}
+  .vb-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .vb-icon{font-size:1.1rem}
+  .vb-title{font-size:.82rem;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:var(--gold)}
+  .verify-banner.ready .vb-title{color:var(--accent-2)}
+  .vb-timer{font-size:1.8rem;font-weight:900;font-family:'Courier New',monospace;letter-spacing:.05em;color:var(--text);margin:6px 0}
+  .vb-sub{font-size:.74rem;color:var(--muted);line-height:1.4}
+  .vb-code{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding:10px 12px;background:rgba(0,0,0,.3);border-radius:10px;border:1px dashed rgba(34,197,94,.5);}
+  .vb-code strong{font-size:1.2rem;font-weight:900;letter-spacing:.08em;color:var(--accent-2);font-family:'Courier New',monospace}
+  .vb-copy{background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.35);color:var(--accent-2);border-radius:8px;padding:6px 12px;font-family:inherit;font-size:.7rem;font-weight:700;cursor:pointer;}
+
+  .quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px;}
+  .qa-btn{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 12px;border-radius:16px;border:1px solid var(--border-strong);background:linear-gradient(180deg,var(--surface),rgba(10,26,16,.6));color:var(--text);font-family:inherit;font-size:.84rem;font-weight:700;cursor:pointer;text-align:center;transition:transform .18s, border-color .2s;}
+  .qa-btn:hover{transform:translateY(-3px);border-color:rgba(34,197,94,.4)}
+  .qa-btn:active{transform:scale(.97)}
+  .qa-icon{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:1.25rem;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.22);}
+  .qa-icon.gold{background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.22)}
+  .qa-icon.blue{background:rgba(56,189,248,.12);border-color:rgba(56,189,248,.22)}
+  .qa-icon.purple{background:rgba(168,85,247,.12);border-color:rgba(168,85,247,.22)}
+  .qa-sub{font-size:.68rem;color:var(--muted);font-weight:500}
+
+  .section-title{display:flex;align-items:center;justify-content:space-between;margin:26px 0 12px;}
+  .section-title h3{font-size:.78rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);}
+  .section-title span{font-size:.72rem;color:var(--accent);font-weight:600}
+
+  .spin-card{background:linear-gradient(160deg,var(--surface-2),rgba(8,20,12,.95));border:1px solid rgba(251,191,36,.28);border-radius:22px;padding:22px 20px;text-align:center;position:relative;overflow:hidden;}
+  .spin-head{position:relative;z-index:1;margin-bottom:16px}
+  .spin-head h3{font-size:1.05rem;font-weight:800;margin-bottom:4px}
+  .spin-head p{font-size:.76rem;color:var(--muted)}
+  .wheel-wrap{position:relative;width:200px;height:200px;margin:0 auto 18px;z-index:1;}
+  .wheel-pointer{position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:22px solid var(--gold);z-index:3;}
+  .wheel{width:200px;height:200px;border-radius:50%;border:6px solid var(--surface-3);box-shadow:0 0 0 3px rgba(251,191,36,.3);position:relative;transition:transform 4s cubic-bezier(.17,.67,.2,1);background:conic-gradient(#22c55e 0deg 45deg,#f59e0b 45deg 90deg,#0ea5e9 90deg 135deg,#a855f7 135deg 180deg,#22c55e 180deg 225deg,#f59e0b 225deg 270deg,#0ea5e9 270deg 315deg,#a855f7 315deg 360deg);overflow:hidden;}
+  .wheel-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:56px;height:56px;border-radius:50%;background:var(--surface);border:3px solid var(--gold);display:grid;place-items:center;font-size:1.3rem;z-index:2;}
+  .spin-bet-display{display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:14px;position:relative;z-index:1;}
+  .sbd-label{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+  .sbd-val{font-size:1rem;font-weight:800;color:var(--gold);}
+  .bet-presets{display:flex;gap:8px;margin-bottom:14px;position:relative;z-index:1;}
+  .bet-preset{flex:1;padding:9px 4px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text);font-family:inherit;font-size:.72rem;font-weight:700;cursor:pointer;transition:all .2s;}
+  .bet-preset.active{background:linear-gradient(135deg,var(--accent),var(--accent-2));border-color:transparent;color:#05100a;}
+  .bet-preset:disabled{opacity:.4;cursor:not-allowed}
+  .spin-btn{width:100%;padding:15px;border-radius:14px;background:linear-gradient(135deg,var(--gold),var(--gold-2));border:none;color:#05100a;font-family:inherit;font-size:1rem;font-weight:900;cursor:pointer;position:relative;z-index:1;box-shadow:0 8px 25px -8px rgba(251,191,36,.6);}
+  .spin-btn:disabled{opacity:.5;cursor:not-allowed}
+  .spin-result{margin-top:14px;padding:0;border-radius:12px;font-size:.86rem;font-weight:700;text-align:center;position:relative;z-index:1;overflow:hidden;transition:all .3s;}
+  .spin-result.win{background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.4);color:var(--accent-2);padding:12px;animation:popIn .4s}
+  .spin-result.lose{background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.35);color:var(--danger);padding:12px;animation:popIn .4s}
+  @keyframes popIn{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
+  .spin-note{font-size:.68rem;color:var(--muted);margin-top:10px;position:relative;z-index:1;}
+
+  .txn-list{display:flex;flex-direction:column;gap:8px}
+  .txn{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:14px;background:linear-gradient(180deg,var(--surface),rgba(10,26,16,.5));border:1px solid var(--border);}
+  .txn-icon{width:38px;height:38px;border-radius:12px;flex-shrink:0;display:grid;place-items:center;font-size:1rem;}
+  .txn-icon.in{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.22);color:var(--accent)}
+  .txn-icon.out{background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.22);color:var(--gold)}
+  .txn-icon.game{background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.22);color:#c084fc}
+  .txn-body{flex:1;min-width:0}
+  .txn-name{font-size:.86rem;font-weight:700}
+  .txn-time{font-size:.7rem;color:var(--muted)}
+  .txn-amt{font-size:.9rem;font-weight:800;text-align:right}
+  .txn-amt.pos{color:var(--accent-2)}
+  .txn-amt.neg{color:var(--gold)}
+
+  .bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:60;background:rgba(5,16,10,.94);backdrop-filter:blur(14px);border-top:1px solid var(--border);padding:8px 0 calc(8px + env(safe-area-inset-bottom));}
+  .bottom-nav-inner{max-width:520px;margin:0 auto;padding:0 12px;display:flex;justify-content:space-around;}
+  .bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;background:none;border:none;color:var(--muted);font-family:inherit;font-size:.66rem;font-weight:600;cursor:pointer;}
+  .bn-item.active{color:var(--accent)}
+  .bn-item svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+  .sheet{position:fixed;inset:0;z-index:500;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;visibility:hidden;transition:opacity .35s, visibility .35s;}
+  .sheet.active{opacity:1;pointer-events:auto;visibility:visible}
+  .sheet-bg{position:absolute;inset:0;background:rgba(3,10,6,.8);backdrop-filter:blur(10px);}
+  .sheet-panel{position:relative;z-index:1;width:100%;max-width:520px;background:linear-gradient(180deg,var(--surface-2),rgba(8,20,12,.99));border-top-left-radius:26px;border-top-right-radius:26px;border:1px solid var(--border-strong);border-bottom:none;padding:10px 22px calc(26px + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;transform:translateY(100%);transition:transform .45s cubic-bezier(.16,1,.3,1);}
+  .sheet.active .sheet-panel{transform:translateY(0)}
+  .sheet-handle{width:40px;height:4px;border-radius:99px;background:rgba(255,255,255,.2);margin:0 auto 16px;}
+  .sheet-head{text-align:center;margin-bottom:20px}
+  .sheet-head h3{font-size:1.15rem;font-weight:800;margin-bottom:4px}
+  .sheet-head p{font-size:.82rem;color:var(--muted)}
+  .sheet-form{display:flex;flex-direction:column;gap:14px}
+  .sheet-submit{width:100%;margin-top:8px;padding:15px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#05100a;font-family:inherit;font-size:.98rem;font-weight:800;cursor:pointer;box-shadow:0 8px 25px -8px var(--accent-glow);}
+  .sheet-submit:disabled{opacity:.5;cursor:not-allowed}
+  .sheet-submit.gold{background:linear-gradient(135deg,var(--gold),var(--gold-2));box-shadow:0 8px 25px -8px rgba(251,191,36,.6);}
+
+  .info-box{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.22);font-size:.76rem;color:#bae6fd;line-height:1.5;}
+  .info-box.warn{background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.25);color:#fde68a;}
+  .info-box strong{color:#fff}
+
+  .amount-preview{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-radius:14px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);}
+  .ap-label{font-size:.76rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+  .ap-val{font-size:1.25rem;font-weight:900;color:var(--accent-2);}
+
+  #toast{position:fixed;bottom:100px;left:50%;transform:translate(-50%,140%);background:rgba(12,28,18,.98);border:1px solid rgba(34,197,94,.35);color:var(--text);padding:13px 22px;border-radius:14px;font-size:.85rem;font-weight:600;box-shadow:0 20px 50px -12px rgba(0,0,0,.9);transition:transform .45s cubic-bezier(.16,1,.3,1);z-index:8000;max-width:calc(100vw - 40px);text-align:center;backdrop-filter:blur(12px);}
+  #toast.show{transform:translate(-50%,0)}
+  body.locked{overflow:hidden}
+  ::-webkit-scrollbar{width:6px}
+  ::-webkit-scrollbar-thumb{background:rgba(34,197,94,.3);border-radius:99px}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splashScreen">
+  <div class="splash-logo">₦</div>
+  <div class="splash-brand">9JA Cashflow</div>
+  <div class="splash-tag">Earn · Play · Withdraw</div>
+  <div class="splash-progress"><div class="splash-fill"></div></div>
+  <div class="splash-loading">Loading…</div>
+</div>
+
+<div id="splashOverlay">
+  <div class="so-ring"></div>
+  <div class="so-text" id="soText">Loading…</div>
+  <div class="so-sub" id="soSub">Just a moment</div>
+</div>
+
+<!-- SIGNUP -->
+<div class="layer" id="signupLayer">
+  <div class="layer-bg" data-close-layer="signupLayer"></div>
+  <div class="layer-inner">
+    <div class="auth-panel">
+      <button class="close-btn" data-close-layer="signupLayer">✕</button>
+      <div class="auth-head">
+        <div class="mark">₦</div>
+        <h2>Create account</h2>
+        <p>Get ₦100,000 welcome bonus + unique referral code</p>
+      </div>
+      <form class="auth-form" id="signupForm" novalidate>
+        <div class="input-group">
+          <label for="suName">Full name</label>
+          <input type="text" id="suName" placeholder="e.g. Chinedu Okafor">
+          <div class="error-msg" id="suNameErr">Please enter your full name.</div>
+        </div>
+        <div class="input-group">
+          <label for="suEmail">Email address</label>
+          <input type="email" id="suEmail" placeholder="you@example.com">
+          <div class="error-msg" id="suEmailErr">Please enter a valid email address.</div>
+        </div>
+        <div class="input-group">
+          <label for="suPhone">Phone number</label>
+          <input type="tel" id="suPhone" placeholder="08012345678">
+          <div class="error-msg" id="suPhoneErr">Please enter a valid Nigerian phone number.</div>
+        </div>
+        <div class="input-group">
+          <label for="suPassword">Password</label>
+          <input type="password" id="suPassword" placeholder="At least 6 characters">
+          <div class="error-msg" id="suPassErr">Password must be at least 6 characters.</div>
+        </div>
+        <div class="input-group">
+          <label for="suRef">Referral code <span class="code-pill">OPTIONAL</span></label>
+          <input type="text" id="suRef" placeholder="e.g. 9JA0000" style="text-transform:uppercase">
+          <div class="error-msg" id="suRefErr">Invalid referral code.</div>
+        </div>
+        <button type="submit" class="auth-submit">Create account →</button>
+      </form>
+      <div class="auth-switch">Already have an account?<button type="button" data-switch="login">Log in</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div class="layer" id="loginLayer">
+  <div class="layer-bg" data-close-layer="loginLayer"></div>
+  <div class="layer-inner">
+    <div class="auth-panel">
+      <button class="close-btn" data-close-layer="loginLayer">✕</button>
+      <div class="auth-head">
+        <div class="mark">₦</div>
+        <h2>Welcome back</h2>
+        <p>Log in to your 9JA Cashflow account</p>
+      </div>
+      <form class="auth-form" id="loginForm" novalidate>
+        <div class="input-group">
+          <label for="liEmail">Email address</label>
+          <input type="email" id="liEmail" placeholder="you@example.com">
+          <div class="error-msg" id="liEmailErr">This email is not registered.</div>
+        </div>
+        <div class="input-group">
+          <label for="liPassword">Password</label>
+          <input type="password" id="liPassword" placeholder="••••••••">
+          <div class="error-msg" id="liPassErr">Incorrect password.</div>
+        </div>
+        <button type="submit" class="auth-submit">Log in →</button>
+      </form>
+      <div class="auth-switch">Don't have an account?<button type="button" data-switch="signup">Create one</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- WELCOME -->
+<div class="layer" id="welcomeLayer">
+  <div class="layer-bg"></div>
+  <div class="layer-inner">
+    <div class="welcome-card">
+      <div class="welcome-emoji">🎉</div>
+      <h2 id="welcomeTitle">Welcome!</h2>
+      <p class="sub">Your account is ready. Here's your starting package.</p>
+      <div class="welcome-balance">
+        <div class="wb-label">Opening balance</div>
+        <div class="wb-amount" id="welcomeBalance">₦100,000</div>
+        <div class="wb-sub">Use it to play, spin, or withdraw</div>
+      </div>
+      <div class="referral-box">
+        <div class="ref-label">Your unique referral code</div>
+        <div class="ref-code">
+          <strong id="welcomeRef">9JA0000</strong>
+          <button class="copy-btn" id="copyRefBtn">Copy</button>
+        </div>
+        <div class="ref-note">Share it — earn ₦5,000 for each friend who signs up.</div>
+      </div>
+      <button class="wa-btn" id="waBtn">
+        <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Join our WhatsApp Channel
+      </button>
+      <button class="welcome-cta" id="enterAppBtn">Enter Dashboard →</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP SCREEN -->
+<div id="appScreen">
+  <div class="app-header">
+    <div class="app-header-inner">
+      <div class="app-user">
+        <div class="app-avatar" id="headerAvatar">U</div>
+        <div>
+          <div class="app-greet">Welcome back</div>
+          <div class="app-name" id="headerName">User</div>
+        </div>
+      </div>
+      <div class="app-code-chip" id="headerRef">9JA0000</div>
+      <button class="logout-btn" id="logoutBtn" title="Log out">Log out</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="balance-hero">
+      <div class="bh-label">Available balance</div>
+      <div class="bh-amount" id="mainBalance">₦100,000</div>
+      <div class="bh-sub" id="mainBalanceSub">Opening balance credited ✓</div>
+    </div>
+
+    <!-- VERIFICATION BANNER -->
+    <div class="verify-banner" id="verifyBanner">
+      <div class="vb-head">
+        <span class="vb-icon" id="vbIcon">⏳</span>
+        <span class="vb-title" id="vbTitle">Code Verifying</span>
+      </div>
+      <div class="vb-timer" id="vbTimer">23:59:59</div>
+      <div class="vb-sub" id="vbSub">Your payment is being verified. Your activation code will be ready in 24 hours.</div>
+      <div class="vb-code" id="vbCodeBox" style="display:none">
+        <strong id="vbCodeText">9JA-0000-0000</strong>
+        <button class="vb-copy" id="vbCopyBtn">Copy</button>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <button class="qa-btn" id="withdrawBtn">
+        <div class="qa-icon gold">💸</div>
+        Withdraw
+        <span class="qa-sub">Min ₦150,000</span>
+      </button>
+      <button class="qa-btn" id="claimBtn">
+        <div class="qa-icon">🎁</div>
+        Claim
+        <span class="qa-sub">Daily reward</span>
+      </button>
+      <button class="qa-btn" id="buyCodeBtn">
+        <div class="qa-icon blue">🔑</div>
+        Buy Code
+        <span class="qa-sub">₦5,000 · 24h verify</span>
+      </button>
+      <button class="qa-btn" id="historyBtn">
+        <div class="qa-icon purple">📜</div>
+        History
+        <span class="qa-sub">Transactions</span>
+      </button>
+    </div>
+
+    <div class="section-title">
+      <h3>Lucky Spin</h3>
+      <span>Min bet ₦20,000</span>
+    </div>
+
+    <div class="spin-card">
+      <div class="spin-head">
+        <h3>🎰 Spin & Win</h3>
+        <p>Higher bets = higher odds & bigger multipliers</p>
+      </div>
+      <div class="wheel-wrap">
+        <div class="wheel-pointer"></div>
+        <div class="wheel" id="wheel"><div class="wheel-center">₦</div></div>
+      </div>
+      <div class="spin-bet-display">
+        <span class="sbd-label">Current bet</span>
+        <span class="sbd-val" id="betDisplay">₦20,000</span>
+      </div>
+      <div class="bet-presets" id="betPresets">
+        <button class="bet-preset active" data-bet="20000">₦20k</button>
+        <button class="bet-preset" data-bet="50000">₦50k</button>
+        <button class="bet-preset" data-bet="100000">₦100k</button>
+        <button class="bet-preset" data-bet="200000">₦200k</button>
+      </div>
+      <button class="spin-btn" id="spinBtn">SPIN NOW 🎯</button>
+      <div class="spin-result" id="spinResult"></div>
+      <div class="spin-note">Odds scale with bet size · Win up to 5× your stake</div>
+    </div>
+
+    <div class="section-title">
+      <h3>Transaction History</h3>
+      <span id="txnCount">0 total</span>
+    </div>
+    <div class="txn-list" id="txnList"></div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="bottom-nav-inner">
+      <button class="bn-item active" data-nav="home"><svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3a1 1 0 001-1V10"/></svg>Home</button>
+      <button class="bn-item" data-nav="spin"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6 3"/></svg>Spin</button>
+      <button class="bn-item" data-nav="withdraw"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>Withdraw</button>
+      <button class="bn-item" data-nav="history"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 2M3.05 11a9 9 0 1118.9 0 9 9 0 01-18.9 0z"/></svg>History</button>
+      <button class="bn-item" data-nav="profile"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg>Profile</button>
+    </div>
+  </div>
+</div>
+
+<!-- WITHDRAW SHEET -->
+<div class="sheet" id="withdrawSheet">
+  <div class="sheet-bg" data-close-sheet="withdrawSheet"></div>
+  <div class="sheet-panel">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <h3>💸 Withdraw Funds</h3>
+      <p>Minimum withdrawal: ₦150,000</p>
+    </div>
+    <form class="sheet-form" id="withdrawForm" novalidate>
+      <div class="input-group">
+        <label for="wdCode">Activation Code <span class="code-pill">REQUIRED</span></label>
+        <input type="text" id="wdCode" placeholder="e.g. 9JA-1234-5678" style="text-transform:uppercase">
+        <div class="error-msg" id="wdCodeErr">Invalid or expired activation code.</div>
+        <div class="input-hint">Enter the code you received after the 24-hour verification.</div>
+      </div>
+      <div class="input-group">
+        <label for="wdBank">Bank name</label>
+        <input type="text" id="wdBank" placeholder="e.g. GTBank, Access, Opay" list="bankList">
+        <datalist id="bankList">
+          <option value="GTBank"><option value="Access Bank"><option value="First Bank">
+          <option value="UBA"><option value="Zenith Bank"><option value="Opay">
+          <option value="PalmPay"><option value="Moniepoint"><option value="Kuda">
+        </datalist>
+        <div class="error-msg" id="wdBankErr">Please enter your bank name.</div>
+      </div>
+      <div class="input-group">
+        <label for="wdAccount">Account number</label>
+        <input type="tel" id="wdAccount" placeholder="10-digit account number" maxlength="10" inputmode="numeric">
+        <div class="error-msg" id="wdAccountErr">Account number must be 10 digits.</div>
+      </div>
+      <div class="input-group">
+        <label for="wdName">Account name</label>
+        <input type="text" id="wdName" placeholder="Name on the account">
+        <div class="error-msg" id="wdNameErr">Please enter the account name.</div>
+      </div>
+      <div class="input-group">
+        <label for="wdAmount">Amount (₦)</label>
+        <input type="tel" id="wdAmount" placeholder="150000" inputmode="numeric">
+        <div class="error-msg" id="wdAmountErr">Minimum withdrawal is ₦150,000.</div>
+      </div>
+      <div class="amount-preview">
+        <span class="ap-label">You receive</span>
+        <span class="ap-val" id="wdPreview">₦0</span>
+      </div>
+      <button type="submit" class="sheet-submit gold" id="wdSubmit">Confirm Withdrawal</button>
+    </form>
+  </div>
+</div>
+
+<!-- BUY CODE SHEET -->
+<div class="sheet" id="buyCodeSheet">
+  <div class="sheet-bg" data-close-sheet="buyCodeSheet"></div>
+  <div class="sheet-panel">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <h3>🔑 Buy Activation Code</h3>
+      <p>One code unlocks withdrawals. 24-hour verification.</p>
+    </div>
+    <form class="sheet-form" id="buyCodeForm" novalidate>
+      <div class="amount-preview" style="background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.35)">
+        <span class="ap-label" style="color:var(--gold)">Activation Code Price</span>
+        <span class="ap-val" style="color:var(--gold)">₦5,000</span>
+      </div>
+
+      <div class="info-box" style="background:rgba(34,197,94,.1); border-color:rgba(34,197,94,.3); align-items:center;">
+        <div style="width:100%">
+          <div style="font-size:.7rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:6px;">Transfer ₦5,000 To</div>
+          <div style="font-size:1.35rem; font-weight:900; color:var(--accent-2); font-family:'Courier New', monospace; letter-spacing:.05em; margin-bottom:4px;">8123456789</div>
+          <div style="font-size:.82rem; color:var(--text); font-weight:600;">9JA Cashflow Ltd</div>
+          <div style="font-size:.74rem; color:var(--muted);">Bank: Opay / Moniepoint</div>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label for="bcEmail">Email Address</label>
+        <input type="email" id="bcEmail" placeholder="you@example.com">
+        <div class="error-msg" id="bcEmailErr">Please enter a valid Email.</div>
+      </div>
+
+      <div class="input-group">
+        <label for="bcReceipt">Upload Payment Receipt</label>
+        <input type="file" id="bcReceipt" accept="image/*" style="padding:12px; background:rgba(255,255,255,.02); border:1px dashed var(--border-strong); color:var(--muted); width:100%; border-radius:12px; font-family:inherit; font-size:.82rem; cursor:pointer;">
+        <div class="error-msg" id="bcReceiptErr">Please upload your payment receipt.</div>
+        <div class="input-hint">Screenshot of your ₦5,000 bank transfer.</div>
+      </div>
+
+      <div class="info-box warn">
+        <span>⚠️</span>
+        <div><strong>24-HOUR VERIFICATION:</strong> After uploading your receipt, your code will be verified and delivered in exactly 24 hours. You can only buy one code per 24 hours.</div>
+      </div>
+
+      <button type="submit" class="sheet-submit" id="bcSubmit">Submit Receipt → Start 24h Timer</button>
+    </form>
+  </div>
+</div>
+
+<!-- HISTORY SHEET -->
+<div class="sheet" id="historySheet">
+  <div class="sheet-bg" data-close-sheet="historySheet"></div>
+  <div class="sheet-panel">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <h3>📜 All Transactions</h3>
+      <p>Complete activity on your account</p>
+    </div>
+    <div class="txn-list" id="fullTxnList"></div>
+  </div>
+</div>
+
+<!-- CLAIM SHEET -->
+<div class="sheet" id="claimSheet">
+  <div class="sheet-bg" data-close-sheet="claimSheet"></div>
+  <div class="sheet-panel">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <h3>🎁 Daily Claim</h3>
+      <p>Claim your free reward once every 24 hours</p>
+    </div>
+    <div style="text-align:center;padding:10px 0 20px">
+      <div style="font-size:3.5rem;margin-bottom:14px">🎁</div>
+      <div style="font-size:1.6rem;font-weight:900;color:var(--gold);margin-bottom:6px" id="claimAmount">₦5,000</div>
+      <div style="font-size:.82rem;color:var(--muted);margin-bottom:22px">Random bonus between ₦2,000 and ₦15,000</div>
+    </div>
+    <button class="sheet-submit gold" id="claimConfirmBtn">Claim Reward</button>
+  </div>
+</div>
+
+<!-- LOGOUT CONFIRM SHEET -->
+<div class="sheet" id="logoutSheet">
+  <div class="sheet-bg" data-close-sheet="logoutSheet"></div>
+  <div class="sheet-panel">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <h3>👋 Log out?</h3>
+      <p>You will need to log in again to access your account.</p>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:10px">
+      <button class="sheet-submit" style="background:rgba(255,255,255,.06);color:var(--text);box-shadow:none" data-close-sheet="logoutSheet">Cancel</button>
+      <button class="sheet-submit gold" id="confirmLogoutBtn">Log out</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  const VERIFY_MS = 24 * 60 * 60 * 1000;
+  const CODE_PRICE = 5000;
+  const MIN_WITHDRAW = 150000;
+  const MIN_BET = 20000;
+  const OPENING_BALANCE = 100000;
+  const REFERRAL_BONUS = 5000;
+  const WHATSAPP_CHANNEL = 'https://whatsapp.com/channel/0029VbCTsdb4Y9lqztHrzC0T';
+
+  const STORAGE_KEY = '9ja_cashflow_session_v1';
+
+  const state = {
+    user: null,
+    balance: 0,
+    referralCode: '',
+    transactions: [],
+    currentBet: 20000,
+    usedEmails: ['demo@9ja.com'],
+    lastClaim: 0,
+    activation: { pending: false, submittedAt: 0, code: '', unlocked: false },
+    timerInterval: null
+  };
+
+  const $ = id => document.getElementById(id);
+  const body = document.body;
+
+  function naira(n) { return '₦' + Math.round(n).toLocaleString('en-NG'); }
+  function generateReferralCode() { return '9JA' + Math.floor(1000 + Math.random() * 9000); }
+  function generateActivationCode() {
+    const part = () => String(Math.floor(1000 + Math.random() * 9000));
+    return '9JA-' + part() + '-' + part();
+  }
+  function randomBetween(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+  function formatTime() { return new Date().toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' }); }
+
+  /* ================= PERSISTENT SESSION ================= */
+  function saveSession() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        user: state.user,
+        balance: state.balance,
+        referralCode: state.referralCode,
+        transactions: state.transactions,
+        lastClaim: state.lastClaim,
+        activation: state.activation,
+        savedAt: Date.now()
+      }));
+    } catch(e) { console.warn('Save failed', e); }
+  }
+
+  function loadSession() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return false;
+      const data = JSON.parse(raw);
+      if (!data || !data.user) return false;
+      state.user = data.user;
+      state.balance = data.balance || 0;
+      state.referralCode = data.referralCode || '';
+      state.transactions = data.transactions || [];
+      state.lastClaim = data.lastClaim || 0;
+      state.activation = Object.assign({ pending:false, submittedAt:0, code:'', unlocked:false }, data.activation || {});
+      return true;
+    } catch(e) { return false; }
+  }
+
+  function clearSession() {
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+  }
+
+  /* SPLASH OVERLAY */
+  const splashOverlay = $('splashOverlay');
+  const soText = $('soText');
+  const soSub = $('soSub');
+  let splashBusy = false;
+  function showSplash(text, sub, duration) {
+    return new Promise(resolve => {
+      if (splashBusy) { resolve(); return; }
+      splashBusy = true;
+      soText.textContent = text || 'Loading…';
+      soSub.textContent = sub || 'Just a moment';
+      splashOverlay.classList.add('active');
+      setTimeout(() => {
+        splashOverlay.classList.remove('active');
+        splashBusy = false;
+        resolve();
+      }, duration || 1000);
+    });
+  }
+
+  /* TOAST */
+  const toast = $('toast');
+  let toastTimer;
+  function showToast(msg, duration) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), duration || 2800);
+  }
+
+  /* LAYERS */
+  const layers = { signupLayer: $('signupLayer'), loginLayer: $('loginLayer'), welcomeLayer: $('welcomeLayer') };
+  let activeLayer = null;
+  function openLayer(id) {
+    if (activeLayer && layers[activeLayer]) layers[activeLayer].classList.remove('active');
+    activeLayer = id;
+    layers[id].classList.add('active');
+    body.classList.add('locked');
+  }
+  function closeLayer(id) {
+    if (layers[id]) {
+      layers[id].classList.remove('active');
+      if (activeLayer === id) activeLayer = null;
+    }
+    if (!activeLayer && !anySheetOpen()) body.classList.remove('locked');
+  }
+
+  /* SHEETS */
+  const sheets = {
+    withdrawSheet: $('withdrawSheet'),
+    buyCodeSheet: $('buyCodeSheet'),
+    historySheet: $('historySheet'),
+    claimSheet: $('claimSheet'),
+    logoutSheet: $('logoutSheet')
+  };
+  let activeSheet = null;
+  function openSheet(id) {
+    if (activeSheet && sheets[activeSheet]) sheets[activeSheet].classList.remove('active');
+    activeSheet = id;
+    sheets[id].classList.add('active');
+    body.classList.add('locked');
+  }
+  function closeSheet(id) {
+    if (sheets[id]) {
+      sheets[id].classList.remove('active');
+      if (activeSheet === id) activeSheet = null;
+    }
+    if (!activeLayer && !anySheetOpen()) body.classList.remove('locked');
+  }
+  function anySheetOpen() { return Object.keys(sheets).some(k => sheets[k].classList.contains('active')); }
+
+  /* TRANSACTIONS */
+  function addTransaction(name, amount, type, timeLabel) {
+    state.transactions.unshift({ id: Date.now() + Math.random(), name, amount, type, time: timeLabel || formatTime() });
+    renderTransactions();
+    saveSession();
+  }
+  function renderTransactions() {
+    const list = $('txnList');
+    const fullList = $('fullTxnList');
+    $('txnCount').textContent = state.transactions.length + ' total';
+    const recent = state.transactions.slice(0, 5);
+    function txnHTML(t) {
+      const iconClass = t.type === 'in' ? 'in' : (t.type === 'out' ? 'out' : 'game');
+      const iconSymbol = t.type === 'in' ? '↓' : (t.type === 'out' ? '↑' : '🎰');
+      const amtClass = t.amount >= 0 ? 'pos' : 'neg';
+      const sign = t.amount >= 0 ? '+' : '−';
+      return `<div class="txn"><div class="txn-icon ${iconClass}">${iconSymbol}</div><div class="txn-body"><div class="txn-name">${t.name}</div><div class="txn-time">${t.time}</div></div><div class="txn-amt ${amtClass}">${sign}${naira(Math.abs(t.amount))}</div></div>`;
+    }
+    list.innerHTML = recent.length === 0
+      ? '<div style="text-align:center;padding:20px;color:var(--muted);font-size:.85rem">No transactions yet</div>'
+      : recent.map(txnHTML).join('');
+    fullList.innerHTML = state.transactions.length === 0
+      ? '<div style="text-align:center;padding:30px;color:var(--muted);font-size:.85rem">No transactions yet</div>'
+      : state.transactions.map(txnHTML).join('');
+  }
+
+  /* BALANCE */
+  function updateBalance(newBalance) {
+    state.balance = newBalance;
+    $('mainBalance').textContent = naira(state.balance);
+    updateBetPresets();
+    saveSession();
+  }
+  function updateBetPresets() {
+    document.querySelectorAll('.bet-preset').forEach(btn => {
+      btn.disabled = parseInt(btn.dataset.bet, 10) > state.balance;
+    });
+  }
+
+  /* ACTIVATION TIMER */
+  function pad(n){ return String(n).padStart(2, '0'); }
+  function formatCountdown(ms) {
+    if (ms < 0) ms = 0;
+    const totalSec = Math.floor(ms / 1000);
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    return pad(h) + ':' + pad(m) + ':' + pad(s);
+  }
+  function renderActivationBanner() {
+    const banner = $('verifyBanner');
+    if (!state.activation.pending && !state.activation.unlocked) {
+      banner.classList.remove('show', 'ready');
+      return;
+    }
+    banner.classList.add('show');
+    if (state.activation.unlocked) {
+      banner.classList.add('ready');
+      $('vbIcon').textContent = '✅';
+      $('vbTitle').textContent = 'Code Ready';
+      $('vbTimer').textContent = 'Verified';
+      $('vbSub').textContent = 'Your activation code is ready. Use it to withdraw.';
+      $('vbCodeBox').style.display = 'flex';
+      $('vbCodeText').textContent = state.activation.code;
+      $('vbCopyBtn').style.display = 'inline-block';
+    } else {
+      banner.classList.remove('ready');
+      $('vbIcon').textContent = '⏳';
+      $('vbTitle').textContent = 'Code Verifying';
+      $('vbSub').textContent = 'Your receipt is being verified. Your activation code will be ready in exactly 24 hours.';
+      $('vbCodeBox').style.display = 'none';
+    }
+  }
+  function tickActivation() {
+    if (!state.activation.pending) return;
+    const elapsed = Date.now() - state.activation.submittedAt;
+    const remaining = VERIFY_MS - elapsed;
+    if (remaining <= 0) {
+      state.activation.pending = false;
+      state.activation.unlocked = true;
+      if (!state.activation.code) state.activation.code = generateActivationCode();
+      saveSession();
+      clearInterval(state.timerInterval);
+      state.timerInterval = null;
+      $('vbTimer').textContent = 'Verified';
+      renderActivationBanner();
+      showToast('✅ Your activation code is ready!');
+      addTransaction('Activation code unlocked', 0, 'in', 'Just now');
+    } else {
+      $('vbTimer').textContent = formatCountdown(remaining);
+    }
+  }
+  function startActivationTimer() {
+    if (state.timerInterval) clearInterval(state.timerInterval);
+    tickActivation();
+    state.timerInterval = setInterval(tickActivation, 1000);
+  }
+
+  function enterApp() {
+    $('appScreen').classList.add('show');
+    $('headerName').textContent = state.user.name;
+    $('headerAvatar').textContent = state.user.name.charAt(0).toUpperCase();
+    $('headerRef').textContent = state.referralCode;
+    updateBalance(state.balance);
+    renderTransactions();
+    renderActivationBanner();
+    if (state.activation.pending) startActivationTimer();
+  }
+
+  function showAuthScreen() {
+    $('appScreen').classList.remove('show');
+    openLayer('signupLayer');
+  }
+
+  /* VALIDATORS */
+  function setErr(input, errEl, show) {
+    if (show) { input.classList.add('invalid'); errEl.classList.add('show'); }
+    else { input.classList.remove('invalid'); errEl.classList.remove('show'); }
+  }
+  function validEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()); }
+  function validPhone(v) { return /^0[789][01]\d{8}$/.test(v.replace(/\s/g, '')); }
+
+  /* SIGNUP */
+  signupForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    let ok = true;
+    const suName = $('suName'), suEmail = $('suEmail'), suPhone = $('suPhone'), suPassword = $('suPassword'), suRef = $('suRef');
+
+    if (suName.value.trim().length < 2) { setErr(suName, $('suNameErr'), true); ok = false; } else setErr(suName, $('suNameErr'), false);
+    if (!validEmail(suEmail.value)) { setErr(suEmail, $('suEmailErr'), true); ok = false; }
+    else if (state.usedEmails.includes(suEmail.value.trim().toLowerCase())) {
+      $('suEmailErr').textContent = 'This email has already been used.';
+      setErr(suEmail, $('suEmailErr'), true); ok = false;
+    } else setErr(suEmail, $('suEmailErr'), false);
+    if (!validPhone(suPhone.value)) { setErr(suPhone, $('suPhoneErr'), true); ok = false; } else setErr(suPhone, $('suPhoneErr'), false);
+    if (suPassword.value.length < 6) { setErr(suPassword, $('suPassErr'), true); ok = false; } else setErr(suPassword, $('suPassErr'), false);
+    if (suRef.value.trim() && !/^9JA\d{4}$/i.test(suRef.value.trim())) { setErr(suRef, $('suRefErr'), true); ok = false; } else setErr(suRef, $('suRefErr'), false);
+
+    if (!ok) return;
+
+    closeLayer('signupLayer');
+    showSplash('Creating your account…', 'Generating referral code', 1800).then(() => {
+      const code = generateReferralCode();
+      state.user = { name: suName.value.trim(), email: suEmail.value.trim().toLowerCase(), phone: suPhone.value.trim() };
+      state.referralCode = code;
+      state.usedEmails.push(state.user.email);
+      state.balance = OPENING_BALANCE;
+      state.transactions = [];
+      state.activation = { pending:false, submittedAt:0, code:'', unlocked:false };
+      state.lastClaim = 0;
+
+      const refUsed = suRef.value.trim().toUpperCase();
+      if (refUsed && refUsed !== code) addTransaction('Referral bonus (referrer)', REFERRAL_BONUS, 'in', 'Just now');
+      addTransaction('Opening balance', OPENING_BALANCE, 'in', 'Just now');
+      saveSession();
+      showWelcome();
+    });
+  });
+
+  ['suName','suEmail','suPhone','suPassword','suRef'].forEach(id => {
+    $(id).addEventListener('input', function () {
+      this.classList.remove('invalid');
+      const err = this.parentElement.querySelector('.error-msg');
+      if (err) err.classList.remove('show');
+    });
+  });
+
+  /* LOGIN */
+  loginForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    let ok = true;
+    const liEmail = $('liEmail'), liPassword = $('liPassword');
+
+    if (!validEmail(liEmail.value)) {
+      $('liEmailErr').textContent = 'Please enter a valid email.';
+      setErr(liEmail, $('liEmailErr'), true); ok = false;
+    } else if (!state.usedEmails.includes(liEmail.value.trim().toLowerCase())) {
+      $('liEmailErr').textContent = 'This email is not registered.';
+      setErr(liEmail, $('liEmailErr'), true); ok = false;
+    } else setErr(liEmail, $('liEmailErr'), false);
+    if (liPassword.value.length < 6) { setErr(liPassword, $('liPassErr'), true); ok = false; } else setErr(liPassword, $('liPassErr'), false);
+    if (!ok) return;
+
+    closeLayer('loginLayer');
+    showSplash('Logging you in…', 'Verifying your account', 1500).then(() => {
+      if (!state.user) {
+        state.user = { name: 'Demo User', email: liEmail.value.trim().toLowerCase(), phone: '08000000000' };
+        state.referralCode = generateReferralCode();
+        state.balance = OPENING_BALANCE;
+        addTransaction('Opening balance', OPENING_BALANCE, 'in', 'Just now');
+      }
+      saveSession();
+      enterApp();
+      showToast('Welcome back, ' + state.user.name.split(' ')[0] + '!');
+    });
+  });
+
+  ['liEmail','liPassword'].forEach(id => {
+    $(id).addEventListener('input', function () {
+      this.classList.remove('invalid');
+      const err = this.parentElement.querySelector('.error-msg');
+      if (err) err.classList.remove('show');
+    });
+  });
+
+  /* WELCOME */
+  function showWelcome() {
+    $('welcomeTitle').textContent = 'Welcome, ' + state.user.name.split(' ')[0] + '!';
+    $('welcomeBalance').textContent = naira(state.balance);
+    $('welcomeRef').textContent = state.referralCode;
+    openLayer('welcomeLayer');
+  }
+
+  $('copyRefBtn').addEventListener('click', function () {
+    const code = state.referralCode;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(code).then(() => {
+        $('copyRefBtn').textContent = 'Copied!';
+        setTimeout(() => $('copyRefBtn').textContent = 'Copy', 1500);
+        showToast('Referral code copied: ' + code);
+      }).catch(() => showToast('Code: ' + code));
+    } else showToast('Code: ' + code);
+  });
+
+  /* WHATSAPP CHANNEL */
+  $('waBtn').addEventListener('click', function () {
+    showSplash('Opening WhatsApp…', 'Joining the channel', 1200).then(() => {
+      window.open(WHATSAPP_CHANNEL, '_blank');
+    });
+  });
+
+  $('enterAppBtn').addEventListener('click', function () {
+    showSplash('Loading dashboard…', 'Setting things up', 1200).then(() => {
+      closeLayer('welcomeLayer');
+      enterApp();
+      setTimeout(() => showToast('Welcome to 9JA Cashflow! 🎉'), 400);
+    });
+  });
+
+  /* SWITCH AUTH */
+  document.querySelectorAll('[data-switch]').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const target = btn.dataset.switch;
+      const layerId = target === 'login' ? 'loginLayer' : 'signupLayer';
+      if (activeLayer) closeLayer(activeLayer);
+      showSplash(target === 'login' ? 'Switching to login…' : 'Switching to signup…', 'Almost there', 900).then(() => openLayer(layerId));
+    });
+  });
+
+  /* CLOSE HANDLERS */
+  document.addEventListener('click', function (e) {
+    const closeL = e.target.closest('[data-close-layer]');
+    if (closeL) { closeLayer(closeL.dataset.closeLayer); return; }
+    const closeS = e.target.closest('[data-close-sheet]');
+    if (closeS) { closeSheet(closeS.dataset.closeSheet); return; }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      if (activeSheet) closeSheet(activeSheet);
+      else if (activeLayer && activeLayer !== 'welcomeLayer') closeLayer(activeLayer);
+    }
+  });
+
+  /* LOGOUT */
+  $('logoutBtn').addEventListener('click', function () {
+    openSheet('logoutSheet');
+  });
+
+  $('confirmLogoutBtn').addEventListener('click', function () {
+    closeSheet('logoutSheet');
+    showSplash('Logging out…', 'See you soon', 1200).then(() => {
+      clearSession();
+      state.user = null;
+      state.balance = 0;
+      state.referralCode = '';
+      state.transactions = [];
+      state.lastClaim = 0;
+      state.activation = { pending:false, submittedAt:0, code:'', unlocked:false };
+      if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; }
+      $('appScreen').classList.remove('show');
+      showAuthScreen();
+      showToast('Logged out successfully');
+    });
+  });
+
+  /* HOME ACTIONS */
+  $('withdrawBtn').addEventListener('click', function () {
+    showSplash('Opening withdrawal…', 'Secure form', 800).then(() => openSheet('withdrawSheet'));
+  });
+
+  $('claimBtn').addEventListener('click', function () {
+    showSplash('Checking reward…', 'Daily claim', 900).then(() => {
+      const now = Date.now();
+      const dayMs = 24 * 60 * 60 * 1000;
+      if (state.lastClaim && now - state.lastClaim < dayMs) {
+        const remain = Math.ceil((dayMs - (now - state.lastClaim)) / 3600000);
+        showToast('Already claimed. Come back in ' + remain + 'h.');
+        return;
+      }
+      const amount = randomBetween(2000, 15000);
+      $('claimAmount').textContent = naira(amount);
+      $('claimConfirmBtn').dataset.amount = amount;
+      openSheet('claimSheet');
+    });
+  });
+
+  $('claimConfirmBtn').addEventListener('click', function () {
+    const amount = parseInt(this.dataset.amount || '5000', 10);
+    closeSheet('claimSheet');
+    showSplash('Crediting reward…', 'Adding to balance', 1200).then(() => {
+      state.lastClaim = Date.now();
+      updateBalance(state.balance + amount);
+      addTransaction('Daily claim reward', amount, 'in', 'Just now');
+      showToast('🎁 You claimed ' + naira(amount) + '!');
+    });
+  });
+
+  $('buyCodeBtn').addEventListener('click', function () {
+    if (state.activation.pending) {
+      showToast('You already have a code being verified. Wait 24h.');
+      return;
+    }
+    if (state.activation.unlocked) {
+      showToast('You already have an active code. Use it to withdraw.');
+      return;
+    }
+    showSplash('Opening store…', 'Activation code', 800).then(() => openSheet('buyCodeSheet'));
+  });
+
+  $('historyBtn').addEventListener('click', function () {
+    showSplash('Loading history…', 'All transactions', 800).then(() => { renderTransactions(); openSheet('historySheet'); });
+  });
+
+  /* BOTTOM NAV */
+  document.querySelectorAll('.bn-item').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const nav = btn.dataset.nav;
+      document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (nav === 'home') {
+        showSplash('Going home…', '', 600).then(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
+      } else if (nav === 'spin') {
+        showSplash('Loading spin…', '', 700).then(() => document.querySelector('.spin-card').scrollIntoView({ behavior: 'smooth', block: 'center' }));
+      } else if (nav === 'withdraw') $('withdrawBtn').click();
+      else if (nav === 'history') $('historyBtn').click();
+      else if (nav === 'profile') {
+        showSplash('Loading profile…', '', 800).then(() => {
+          openSheet('logoutSheet');
+        });
+      }
+    });
+  });
+
+  /* WITHDRAW FORM */
+  $('wdAmount').addEventListener('input', function () {
+    const v = parseInt(this.value.replace(/\D/g, ''), 10) || 0;
+    $('wdPreview').textContent = naira(v);
+  });
+
+  withdrawForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    let ok = true;
+    const code = $('wdCode'), bank = $('wdBank'), acct = $('wdAccount'), name = $('wdName'), amt = $('wdAmount');
+
+    const enteredCode = code.value.trim().toUpperCase();
+    const validCode = state.activation.unlocked && state.activation.code && enteredCode === state.activation.code.toUpperCase();
+    if (!validCode) { setErr(code, $('wdCodeErr'), true); ok = false; } else setErr(code, $('wdCodeErr'), false);
+
+    if (bank.value.trim().length < 2) { setErr(bank, $('wdBankErr'), true); ok = false; } else setErr(bank, $('wdBankErr'), false);
+    if (!/^\d{10}$/.test(acct.value.trim())) { setErr(acct, $('wdAccountErr'), true); ok = false; } else setErr(acct, $('wdAccountErr'), false);
+    if (name.value.trim().length < 2) { setErr(name, $('wdNameErr'), true); ok = false; } else setErr(name, $('wdNameErr'), false);
+
+    const amount = parseInt(amt.value.replace(/\D/g, ''), 10) || 0;
+    if (amount < MIN_WITHDRAW) { setErr(amt, $('wdAmountErr'), true); ok = false; }
+    else if (amount > state.balance) {
+      $('wdAmountErr').textContent = 'Insufficient balance. You have ' + naira(state.balance) + '.';
+      setErr(amt, $('wdAmountErr'), true); ok = false;
+    } else setErr(amt, $('wdAmountErr'), false);
+
+    if (!ok) return;
+
+    closeSheet('withdrawSheet');
+    showSplash('Processing withdrawal…', 'Sending to ' + bank.value, 2000).then(() => {
+      updateBalance(state.balance - amount);
+      addTransaction('Withdrawal to ' + bank.value, -amount, 'out', 'Just now');
+      showToast('✅ Withdrawal of ' + naira(amount) + ' submitted.');
+      withdrawForm.reset();
+      $('wdPreview').textContent = '₦0';
+    });
+  });
+
+  ['wdCode','wdBank','wdAccount','wdName','wdAmount'].forEach(id => {
+    $(id).addEventListener('input', function () {
+      this.classList.remove('invalid');
+      const err = this.parentElement.querySelector('.error-msg');
+      if (err) err.classList.remove('show');
+    });
+  });
+
+  /* BUY CODE FORM */
+  buyCodeForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    if (state.activation.pending) { showToast('You already have a pending code.'); return; }
+    if (state.activation.unlocked) { showToast('You already have an active code.'); return; }
+
+    const emailInput = $('bcEmail');
+    const bcReceipt = $('bcReceipt');
+    let ok = true;
+
+    if (!validEmail(emailInput.value)) { setErr(emailInput, $('bcEmailErr'), true); ok = false; }
+    else setErr(emailInput, $('bcEmailErr'), false);
+
+    if (bcReceipt.files.length === 0) { setErr(bcReceipt, $('bcReceiptErr'), true); ok = false; }
+    else setErr(bcReceipt, $('bcReceiptErr'), false);
+
+    if (!ok) return;
+
+    closeSheet('buyCodeSheet');
+    showSplash('Submitting receipt…', 'Starting 24h verification', 2000).then(() => {
+      state.activation.pending = true;
+      state.activation.submittedAt = Date.now();
+      state.activation.code = '';
+      state.activation.unlocked = false;
+      saveSession();
+      addTransaction('Activation code purchase (₦5,000)', 0, 'out', 'Just now');
+      showToast('✅ Receipt received! 24h timer started.');
+      renderActivationBanner();
+      startActivationTimer();
+      buyCodeForm.reset();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  $('bcReceipt').addEventListener('change', function () {
+    this.classList.remove('invalid');
+    $('bcReceiptErr').classList.remove('show');
+  });
+
+  $('bcEmail').addEventListener('input', function () {
+    this.classList.remove('invalid');
+    $('bcEmailErr').classList.remove('show');
+  });
+
+  /* COPY UNLOCKED ACTIVATION CODE */
+  $('vbCopyBtn').addEventListener('click', function () {
+    if (!state.activation.code) return;
+    navigator.clipboard.writeText(state.activation.code).then(() => {
+      showToast('Code copied: ' + state.activation.code);
+    }).catch(() => showToast('Code: ' + state.activation.code));
+  });
+
+  /* SPIN GAME */
+  const wheel = $('wheel');
+  const spinBtn = $('spinBtn');
+  const betDisplay = $('betDisplay');
+  const spinResult = $('spinResult');
+  let currentRotation = 0;
+  let spinning = false;
+
+  document.querySelectorAll('.bet-preset').forEach(btn => {
+    btn.addEventListener('click', function () {
+      if (spinning) return;
+      const bet = parseInt(btn.dataset.bet, 10);
+      if (bet > state.balance) { showToast('Insufficient balance for this bet.'); return; }
+      state.currentBet = bet;
+      betDisplay.textContent = naira(bet);
+      document.querySelectorAll('.bet-preset').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  function getWinChance(bet) {
+    const t = Math.min((bet - MIN_BET) / (200000 - MIN_BET), 1);
+    return 0.30 + t * 0.25;
+  }
+  function getMultiplier(bet) {
+    const t = Math.min((bet - MIN_BET) / (200000 - MIN_BET), 1);
+    return 2 + t * 3;
+  }
+
+  spinBtn.addEventListener('click', function () {
+    if (spinning) return;
+    if (state.currentBet > state.balance) { showToast('Insufficient balance. Reduce your bet.'); return; }
+
+    spinning = true;
+    spinBtn.disabled = true;
+    spinBtn.textContent = 'SPINNING…';
+    spinResult.className = 'spin-result';
+    spinResult.textContent = '';
+    spinResult.style.padding = '0';
+
+    updateBalance(state.balance - state.currentBet);
+    addTransaction('Spin bet', -state.currentBet, 'game', 'Just now');
+
+    const isWin = Math.random() < getWinChance(state.currentBet);
+    const multiplier = getMultiplier(state.currentBet);
+
+    const totalDeg = 5 * 360 + Math.random() * 360;
+    currentRotation += totalDeg;
+    wheel.style.transform = 'rotate(' + currentRotation + 'deg)';
+
+    setTimeout(() => {
+      spinning = false;
+      spinBtn.disabled = false;
+      spinBtn.textContent = 'SPIN NOW 🎯';
+
+      if (isWin) {
+        const winAmount = Math.round(state.currentBet * multiplier);
+        updateBalance(state.balance + winAmount);
+        addTransaction('Spin win (' + multiplier.toFixed(1) + '×)', winAmount, 'in', 'Just now');
+        spinResult.className = 'spin-result win';
+        spinResult.textContent = '🎉 You won ' + naira(winAmount) + '! (' + multiplier.toFixed(1) + '×)';
+        showToast('🎉 Spin win: ' + naira(winAmount));
+      } else {
+        spinResult.className = 'spin-result lose';
+        spinResult.textContent = '😔 No win this time. Try again!';
+      }
+      updateBetPresets();
+    }, 4200);
+  });
+
+  /* INITIAL BOOT */
+  window.addEventListener('load', function () {
+    setTimeout(() => {
+      $('splashScreen').classList.add('gone');
+
+      // Check for saved session — skip auth if logged in
+      const hasSession = loadSession();
+
+      setTimeout(() => {
+        if (hasSession && state.user) {
+          // Auto-login: go straight to app
+          enterApp();
+          // If pending timer exists, resume it
+          if (state.activation.pending) {
+            startActivationTimer();
+          }
+          showToast('Welcome back, ' + state.user.name.split(' ')[0] + '!');
+        } else {
+          // No session — show signup
+          openLayer('signupLayer');
+        }
+      }, 400);
+    }, 2600);
+  });
+
+  setInterval(() => {
+    if (!activeLayer && !anySheetOpen() && body.classList.contains('locked')) body.classList.remove('locked');
+  }, 1000);
+
+  /* SAVE SESSION ON TAB CLOSE */
+  window.addEventListener('beforeunload', saveSession);
+
+})();
+</script>
+</body>
+</html>
